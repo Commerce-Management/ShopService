@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <ProjectReference Include="..\ShopService.Core\ShopService.Core.csproj" />
+        <ProjectReference Include="..\ShopService.Infrastructure\ShopService.Infrastructure.csproj"/>
+        <ProjectReference Include="..\ShopService.Shared\ShopService.Shared.csproj"/>
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="15.0.1" />
+    </ItemGroup>
+
+</Project>
