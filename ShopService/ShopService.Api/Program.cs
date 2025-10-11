@@ -13,7 +13,7 @@ using ShopService.Infrastructure.Repositories;
 using ShopService.Infrastructure.Repositories.Base;
 using ShopService.Shared.JwtDtos;
 using ShopService.Application.Services;
-
+using ShopService.Core.Profiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -123,7 +123,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("CustomerAndOwner", policy => policy.RequireClaim(ClaimTypes.Role, "ShopOwner", "ShopCustomer"));
 });
 
+
 builder.Services.AddControllers();
+
 
 //Cookie
 builder.Services.Configure<CookiePolicyOptions>(options =>
@@ -146,11 +148,14 @@ builder.Services.AddApiVersioning(options => { options.ReportApiVersions = true;
 
 
 
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IShopService, ShopService.Application.Services.ShopService>();
 builder.Services.AddScoped<IShopRepository, ShopRepository>();
 
-// builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+// вариант A — передать пустой делегат + типы профилей
+builder.Services.AddAutoMapper(cfg => { }, typeof(ShopService.Core.Profiles.ShopProfile));
 
 
 
