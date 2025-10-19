@@ -123,7 +123,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("CustomerAndOwner", policy => policy.RequireClaim(ClaimTypes.Role, "ShopOwner", "ShopCustomer"));
 });
 
-
+builder.Services.AddGrpc();
 builder.Services.AddControllers();
 
 
@@ -187,6 +187,8 @@ app.UseCookiePolicy();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGrpcService<ShopService.Infrastructure.gRPC.GrpcShopService>();
 app.MapControllers();
 
 

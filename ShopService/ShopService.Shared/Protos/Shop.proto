@@ -1,0 +1,21 @@
+﻿syntax = "proto3";
+option csharp_namespace = "ShopService.Shared.Protos";
+
+package shop;
+
+
+service ShopService {
+  rpc GetShopByOwner(GetShopByOwnerRequest) returns (GetShopByOwnerResponse);
+}
+
+message GetShopByOwnerRequest {
+  string ownerUserId = 1;
+}
+
+message GetShopByOwnerResponse {
+  string shopId = 1;       // пустая строка => not found; или используем rpc error
+  bool isActive = 2;
+  string message = 3;      // optional debug/info
+}
+
+
