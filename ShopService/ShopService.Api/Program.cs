@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,6 +17,32 @@ using ShopService.Application.Services;
 using ShopService.Core.Profiles;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHttpClient("Client")
+    .ConfigurePrimaryHttpMessageHandler(() =>
+    {
+        return new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        };
+    });
+
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    
+    options.Listen(IPAddress.Any, 5194, listenOptions =>
+    {
+        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
+    });
+    
+
+    options.Listen(IPAddress.Any, 5001, listenOptions =>
+    {
+        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2; 
+    });
+}); 
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -125,6 +152,9 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddGrpc();
 builder.Services.AddControllers();
+
+
+
 
 
 //Cookie

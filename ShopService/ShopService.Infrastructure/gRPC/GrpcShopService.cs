@@ -1,43 +1,43 @@
 ﻿using ShopService.Core.Interfaces;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
+using ShopService.Infrastructure.Interfaces.Entities;
 using ShopService.Shared.Protos;
 
 namespace ShopService.Infrastructure.gRPC;
 
 public class GrpcShopService : ShopService.Shared.Protos.ShopService.ShopServiceBase
 {
-    private readonly IShopService _shopService;
+    private readonly IShopRepository _shopRepository;
+    
     private readonly ILogger<GrpcShopService> _logger;
 
-    public GrpcShopService(IShopService shopService, ILogger<GrpcShopService> logger)
+    public GrpcShopService(IShopRepository shopRepository,ILogger<GrpcShopService> logger)
     {
-        _shopService = shopService;
+        _shopRepository = shopRepository;
         _logger = logger;
     }
 
-    public override async Task<GetShopByOwnerResponse> GetShopByOwner(GetShopByOwnerRequest request, ServerCallContext context)
+    public override async Task<GetShopByIdResponse> GetShopById(GetShopByIdRequest request, ServerCallContext context)
     {
-        if (request == null || string.IsNullOrWhiteSpace(request.OwnerUserId))
-            throw new RpcException(new Status(StatusCode.InvalidArgument, "ownerUserId is required"));
+        if (request == null || string.IsNullOrWhiteSpace(request.ShopId))
+            throw new RpcException(new Status(StatusCode.InvalidArgument, "ShopId is required"));
 
-        if (!Guid.TryParse(request.OwnerUserId, out var ownerId))
+        if (!Guid.TryParse(request.ShopId, out var shopId))
             throw new RpcException(new Status(StatusCode.InvalidArgument, "ownerUserId invalid"));
+
 
         try
         {
-            var shopDto = await _shopService.GetShopByOwnerIdAsync(ownerId);
-            if (shopDto == null)
+            var shop = await _shopRepository.GetShopByIdAsync(shopId); 
+            if (shop == null)
             {
-                // Return not found via gRPC status OR empty response. We'll use NOT_FOUND.
                 throw new RpcException(new Status(StatusCode.NotFound, "Shop not found for owner"));
             }
 
-            return new GetShopByOwnerResponse
+            return new GetShopByIdResponse()
             {
-                ShopId = shopDto.Id.ToString(),
-                IsActive = shopDto.IsActive,
-                Message = "OK"
+                Id = shop.Id.ToString()
             };
         }
         catch (RpcException)
@@ -46,7 +46,7 @@ public class GrpcShopService : ShopService.Shared.Protos.ShopService.ShopService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "GetShopByOwner failed for owner {Owner}", request.OwnerUserId);
+            _logger.LogError(ex, "GetShopById failed for id {Id}", request.ShopId);
             throw new RpcException(new Status(StatusCode.Internal, "Internal server error"));
         }
     }

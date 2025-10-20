@@ -9,8 +9,8 @@ using Asp.Versioning;
 
 namespace ShopService.Controllers;
 
-[ApiController]
 [ApiVersion("1.0")]
+[ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 public class ShopsController(IShopService shopService) : ControllerBase
 {
