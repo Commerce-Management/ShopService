@@ -1,12 +1,11 @@
-﻿using ShopService.Core.Interfaces;
-using Grpc.Core;
+﻿using Grpc.Core;
 using Microsoft.Extensions.Logging;
 using ShopService.Infrastructure.Interfaces.Entities;
-using ShopService.Shared.Protos;
+using ShopService.Shared.Protos.GrpcShopService;
 
 namespace ShopService.Infrastructure.gRPC;
 
-public class GrpcShopService : ShopService.Shared.Protos.ShopService.ShopServiceBase
+public class GrpcShopService : ShopService.Shared.Protos.GrpcShopService.ShopService.ShopServiceBase
 {
     private readonly IShopRepository _shopRepository;
     
