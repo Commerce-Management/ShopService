@@ -15,7 +15,7 @@ namespace ShopService.Controllers;
 public class ShopsController(IShopService shopService) : ControllerBase
 {
     [HttpPost]
-    [Authorize("ShopOwner")]
+    [Authorize("OwnerAndSuperAdmin")]
     public async Task<ActionResult<GetShopDto>> CreateShop([FromBody] CreateShopDto createShopDto)
     {
         if (!ModelState.IsValid)
@@ -57,11 +57,9 @@ public class ShopsController(IShopService shopService) : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            // Здесь уже точно catch попадёт, если SaveChangesAsync вернул false или другая бизнес-ошибка.
             Log.Warning(ex, "ShopsController.CreateShop: Business rule violation for user {OwnerId}. DTO: {@Dto}",
                 ownerUserId, createShopDto);
 
-            // Возвращаем более подробный ответ, чтобы видеть причину.
             return BadRequest(new
             {
                 ErrorCode = "BusinessRuleViolation",
@@ -89,18 +87,11 @@ public class ShopsController(IShopService shopService) : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<GetShopDto>> GetShopById(Guid id)
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var currentUserId))
-            return Unauthorized(new { Error = "Cannot determine user." });
-
         try
         {
             var shop = await shopService.GetShopByIdAsync(id);
             if (shop == null)
                 return NotFound(new { Error = $"Shop with ID {id} not found." });
-
-            if (User.IsInRole("ShopOwner") && shop.OwnerUserId != currentUserId.ToString())
-                return Forbid();
 
             return Ok(shop);
         }
@@ -111,6 +102,7 @@ public class ShopsController(IShopService shopService) : ControllerBase
         }
     }
 
+    [Authorize("OwnerAndSuperAdmin")]
     [HttpPut("{id:guid}")]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> UpdateShop(Guid id, [FromForm] UpdateShopDto updateShopDto)
@@ -152,6 +144,7 @@ public class ShopsController(IShopService shopService) : ControllerBase
         }
     }
 
+    [Authorize("OwnerAndSuperAdmin")]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteShop(Guid id)
     {
@@ -184,18 +177,11 @@ public class ShopsController(IShopService shopService) : ControllerBase
     [HttpGet("subdomain/{subdomain}")]
     public async Task<ActionResult<GetShopDto>> GetShopBySubdomain(string subdomain)
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var currentUserId))
-            return Unauthorized(new { Error = "Cannot determine user." });
-
         try
         {
             var shop = await shopService.GetShopBySubdomainAsync(subdomain);
             if (shop == null)
                 return NotFound(new { Error = $"Shop with subdomain {subdomain} not found." });
-
-            if (User.IsInRole("ShopOwner") && shop.OwnerUserId != currentUserId.ToString())
-                return Forbid();
 
             return Ok(shop);
         }
@@ -206,6 +192,7 @@ public class ShopsController(IShopService shopService) : ControllerBase
         }
     }
 
+    [Authorize("OwnerAndSuperAdmin")]
     [HttpGet("owner/{ownerId:guid}")]
     public async Task<ActionResult<GetShopDto>> GetShopByOwnerId(Guid ownerId)
     {
@@ -232,7 +219,6 @@ public class ShopsController(IShopService shopService) : ControllerBase
     }
 
     [HttpGet]
-    [Authorize("CustomerAndOwner")]
     public async Task<ActionResult<IEnumerable<GetShopDto>>> GetPaginatedShops(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10)
