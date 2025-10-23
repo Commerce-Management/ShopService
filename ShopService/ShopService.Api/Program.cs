@@ -148,6 +148,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ShopOwner", policy => policy.RequireClaim(ClaimTypes.Role, "ShopOwner"));
     options.AddPolicy("SuperAdmin", policy => policy.RequireClaim(ClaimTypes.Role, "SuperAdmin"));
     options.AddPolicy("CustomerAndOwner", policy => policy.RequireClaim(ClaimTypes.Role, "ShopOwner", "ShopCustomer"));
+    options.AddPolicy("OwnerAndSuperAdmin", policy => policy.RequireClaim(ClaimTypes.Role, "ShopOwner", "SuperAdmin"));
 });
 
 builder.Services.AddGrpc();
