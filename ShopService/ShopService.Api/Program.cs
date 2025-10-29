@@ -18,6 +18,8 @@ using ShopService.Core.Profiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
+        
+
 builder.Services.AddHttpClient("Client")
     .ConfigurePrimaryHttpMessageHandler(() =>
     {
@@ -30,8 +32,7 @@ builder.Services.AddHttpClient("Client")
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    
-    options.Listen(IPAddress.Any, 5194, listenOptions =>
+    options.Listen(IPAddress.Any, 5004, listenOptions =>
     {
         listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
     });

@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <InvariantGlobalization>true</InvariantGlobalization>
         <RootNamespace>ShopService</RootNamespace>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
@@ -27,6 +28,12 @@
         <ProjectReference Include="..\ShopService.Infrastructure\ShopService.Infrastructure.csproj" />
         <ProjectReference Include="..\ShopService.Application\ShopService.Application.csproj" />
         <ProjectReference Include="..\ShopService.Core\ShopService.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 
 </Project>
