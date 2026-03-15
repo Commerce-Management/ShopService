@@ -11,6 +11,9 @@ public class ShopRepository(ShopDbContext context) : Repository<Shop>(context), 
     private IQueryable<Shop> GetShopQuery() =>
         Entities.AsNoTracking();
 
+    public IQueryable<Shop> GetQueryableEntities() =>
+        Entities;
+
     public async Task<IEnumerable<Shop>> GetAllShopsAsync() =>
         await GetShopQuery()
             .ToListAsync();
@@ -39,5 +42,4 @@ public class ShopRepository(ShopDbContext context) : Repository<Shop>(context), 
 
         return (shops, totalCount);
     }
-
 }

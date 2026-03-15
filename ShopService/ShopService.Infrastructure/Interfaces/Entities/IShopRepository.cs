@@ -10,4 +10,5 @@ public interface IShopRepository : IRepository<Shop>
     public Task<Shop?> GetShopByOwnerIdAsync(Guid ownerId);
     public Task<IEnumerable<Shop>> GetAllShopsAsync();
     public Task<(IEnumerable<Shop> Shops, int TotalCount)> GetPaginatedShopsAsync(int pageNumber, int pageSize);
+    public IQueryable<Shop> GetQueryableEntities();
 } 

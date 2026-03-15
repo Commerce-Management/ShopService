@@ -143,7 +143,6 @@ public class ShopsController(IShopService shopService) : ControllerBase
             });
         }
     }
-
     [Authorize("OwnerAndSuperAdmin")]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteShop(Guid id)
@@ -154,18 +153,39 @@ public class ShopsController(IShopService shopService) : ControllerBase
 
         try
         {
+             
             var existing = await shopService.GetShopByIdAsync(id);
             if (existing == null)
                 return NotFound(new { Error = $"Shop with ID {id} not found." });
 
-            if (User.IsInRole("ShopOwner") && existing.OwnerUserId != currentUserId.ToString())
-                return Forbid();
+            var ownerIdString = existing.OwnerUserId?.ToString() ?? string.Empty;
+            if (User.IsInRole("ShopOwner"))
+            {
+                if (!Guid.TryParse(ownerIdString, out var ownerGuid) || ownerGuid != currentUserId)
+                    return Forbid();
+            }
 
             var success = await shopService.DeleteShopAsync(id);
-            if (!success)
-                return NotFound(new { Error = $"Shop with ID {id} not found." });
 
-            return NoContent();
+            if (success)
+            {
+             
+                return NoContent();
+            }
+            else
+            {
+       
+                var stillExists = await shopService.GetShopByIdAsync(id);
+                if (stillExists == null)
+                {
+                
+                    return NoContent();
+                }
+
+              
+                Log.Error("ShopsController.DeleteShop: DeleteShopAsync returned false but shop still exists. ShopId: {ShopId}", id);
+                return StatusCode(500, new { Error = $"Failed to delete shop with ID {id}." });
+            }
         }
         catch (Exception ex)
         {
@@ -173,6 +193,8 @@ public class ShopsController(IShopService shopService) : ControllerBase
             return StatusCode(500, new { Error = "Server error." });
         }
     }
+
+    
 
     [HttpGet("subdomain/{subdomain}")]
     public async Task<ActionResult<GetShopDto>> GetShopBySubdomain(string subdomain)

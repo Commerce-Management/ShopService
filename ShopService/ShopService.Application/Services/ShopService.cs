@@ -3,6 +3,8 @@ using ShopService.Core.Interfaces;
 using ShopService.Infrastructure.Interfaces.Base;
 using ShopService.Infrastructure.Interfaces.Entities;
 using ShopService.Shared.Dtos;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace ShopService.Application.Services;
 
@@ -24,7 +26,7 @@ public class ShopService(
         try
         {
             var shopEntity = mapper.Map<Shop>(dto);
-            // Id генерируется автоматически в конструкторе / инициализации свойства
+ 
             shopEntity.OwnerUserId = ownerUserId;
             shopEntity.CreatedAt = DateTime.UtcNow;
             shopEntity.IsActive = false;
@@ -80,14 +82,19 @@ public class ShopService(
         return success;
     }
 
+
     public async Task<bool> DeleteShopAsync(Guid id)
     {
-        var shopEntity = await shopRepository.GetShopByIdAsync(id);
+        var shopEntity = await shopRepository.GetQueryableEntities()
+            .FirstOrDefaultAsync(s => s.Id == id);
+
         if (shopEntity == null)
             return false;
 
         shopRepository.Delete(shopEntity);
-        var success = await unitOfWork.SaveChangesAsync();
-        return success;
+
+        return await unitOfWork.SaveChangesAsync(); 
     }
+
+
 }

@@ -172,10 +172,11 @@ builder.Services.AddControllers();
 //Cookie
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
-    options.MinimumSameSitePolicy = SameSiteMode.None;
+    options.MinimumSameSitePolicy = SameSiteMode.Lax;
     options.HttpOnly = HttpOnlyPolicy.Always;
-    options.Secure = CookieSecurePolicy.Always;
+    options.Secure = CookieSecurePolicy.None;
 });
+
 
 builder.Services.AddHttpClient("MyClient");
 
@@ -196,7 +197,7 @@ builder.Services.AddScoped<IShopService, ShopService.Application.Services.ShopSe
 builder.Services.AddScoped<IShopRepository, ShopRepository>();
 
 
-// вариант A — передать пустой делегат + типы профилей
+ 
 builder.Services.AddAutoMapper(cfg => { }, typeof(ShopService.Core.Profiles.ShopProfile));
 
 
